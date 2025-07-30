@@ -10,4 +10,6 @@ import { PostagemService } from "./services/postagem.service";
     controllers: [PostagemController],
     exports: []
 })
-export class PostagemModule {}
+export class PostagemModule {    
+    
+}

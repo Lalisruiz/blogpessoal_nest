@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Postagem } from './postagem/entities/postagem.entity';
 import { PostagemModule } from './postagem/postagem.module';
 
+ // Porta do banco de dados
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -15,7 +16,8 @@ import { PostagemModule } from './postagem/postagem.module';
       entities: [],
       synchronize: true,
       logging: true,
-    })
+    }),
+    
   ],
   controllers: [],
   providers: [],
