@@ -3,7 +3,6 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Tema } from "./entities/tema.entity";
 import { TemaController } from "./controllers/tema.controller";
 import { TemaService } from "./services/tema.service";
-import { Postagem } from "../postagem/entities/postagem.entity";
 
 @Module({
     imports: [TypeOrmModule.forFeature([Tema])],
@@ -11,4 +10,4 @@ import { Postagem } from "../postagem/entities/postagem.entity";
     providers: [TemaService],
     exports: [TemaService]
 })
-export class TemaModule {}
+export class TemaModule {} 
