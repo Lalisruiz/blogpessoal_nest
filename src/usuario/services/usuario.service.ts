@@ -55,6 +55,7 @@ export class UsuarioService {
 
         if (!buscaUsuario) {
             usuario.senha = await this.bcrypt.criptografarSenha(usuario.senha)
+            usuario.foto = '-';
             return await this.usuarioRepository.save(usuario);
         }
 
@@ -76,6 +77,15 @@ export class UsuarioService {
         usuario.senha = await this.bcrypt.criptografarSenha(usuario.senha)
         return await this.usuarioRepository.save(usuario);
 
+    }
+
+    async delete(id: number) {
+        let buscaUsuario = await this.findById(id);
+
+        if (!buscaUsuario)
+            throw new HttpException('Usuário não encontrado!', HttpStatus.NOT_FOUND);
+
+        await this.usuarioRepository.delete(id);
     }
 
 

@@ -6,6 +6,9 @@ import { Postagem } from "../entities/postagem.entity";
 
 @Injectable()
 export class PostagemService {
+    findAllByTitulo(titulo: string): Promise<Postagem[]> {
+        throw new Error("Method not implemented.");
+    }
     constructor(
         @InjectRepository(Postagem)
         private postagemRepository: Repository<Postagem>,
@@ -67,7 +70,7 @@ export class PostagemService {
         return await this.postagemRepository.save(postagem);
     }
 
-    async update(postagem: Postagem): Promise<Postagem> {
+    async update(id: number, postagem: Postagem): Promise<Postagem> {
         
         let buscaPostagem: Postagem = await this.findById(postagem.id);
 
