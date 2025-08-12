@@ -1,106 +1,161 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { Test, TestingModule } from "@nestjs/testing";
+import { INestApplication, ValidationPipe } from "@nestjs/common";
+import * as request from "supertest";
+import { AppModule } from "../src/app.module";
+import { TypeOrmModule } from "@nestjs/typeorm";
 
-describe('Testes dos Módulos Usuario e Auth (e2e)', () => {
-
-jest.setTimeout(15000);
-   // Variáveis para armazenar o token e o ID do usuário
-  let token: any; // Variável para armazenar o token JWT
-  let usuarioId: any; // Variável para armazenar o ID do usuário criado
-  let app: INestApplication; // Variável para armazenar a instância da aplicação NestJS
-
-// Configuração do ambiente de teste
+describe("Testes dos Módulos Usuario e Auth (e2e)", () => {
+  let token: any;
+  let usuarioId: any;
+  let app: INestApplication;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({ // Cria um módulo de teste
+    const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         TypeOrmModule.forRoot({
-          type: 'sqlite', // Define o tipo de banco de dados como SQLite
-          database: ':memory:',  
+          type: "sqlite",
+          database: ":memory:",
           entities: [__dirname + "./../src/**/entities/*.entity.ts"],
           synchronize: true,
           dropSchema: true,
         }),
-        AppModule],
+        AppModule,
+      ],
     }).compile();
 
-    app = moduleFixture.createNestApplication();  // Cria uma instância da aplicação NestJS
+    app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
   });
 
-  afterAll(async () => { // Limpa os recursos após os testes
+  afterAll(async () => {
     await app.close();
-  })
+  });
 
-  it("01 - Deve Cadastrar um novo Usuário", async () => {
+  it("01 - Não Deve Cadastrar um novo Usuário se a senha for menor que 8 caracteres e se não tiver pelo menos um especial",
+    async () => {
     const resposta = await request(app.getHttpServer())
-      .post('/usuarios/cadastrar')
+      .post("/usuarios/cadastro")
       .send({
-        nome: 'Root',
-        usuario: 'root@root.com',
-        senha: '',
-        foto: '-',
+        nome: "Root",
+        usuario: "root@root.com",
+        senha: "rootroot@",
+        foto: "-",
       })
-      .expect(201)
+      .expect(400);
 
     usuarioId = resposta.body.id;
-
   });
 
-  it("02 - Não Deve Cadastrar um Usuário Duplicado", async () => {
-    await request(app.getHttpServer())
-      .post('/usuarios/cadastrar')
-      .send({
-        nome: 'Root',
-        usuario: 'root@root.com',
-        senha: '',
-        foto: '-',
-      })
-      .expect(400)
-
-  });
-
-  it("03 - Deve Autenticar o Usuário (Login)", async () => {
+  it("02 - Não Deve Cadastrar um novo Usuário sem um e-mail valido", async () => {
     const resposta = await request(app.getHttpServer())
-    .post("/usuarios/logar")
-    .send({
-      usuario: 'root@root.com',
-      senha: 'rootroot',
-    })
-    .expect(200)
+      .post("/usuarios/cadastro")
+      .send({
+        nome: "Root",
+        usuario: "root",
+        senha: "rootroot",
+        foto: "-",
+      })
+      .expect(400);
+
+    usuarioId = resposta.body.id;
+  });
+
+  it("03 - Deve Cadastrar um novo Usuário", async () => {
+    const resposta = await request(app.getHttpServer())
+      .post("/usuarios/cadastro")
+      .send({
+        nome: "Root",
+        usuario: "root@root.com",
+        senha: "rootroot",
+        foto: "-",
+      })
+      .expect(201);
+
+    usuarioId = resposta.body.id;
+  });
+
+  it("04 - Não Deve Cadastrar um Usuário Duplicado", async () => {
+    await request(app.getHttpServer())
+      .post("/usuarios/cadastro")
+      .send({
+        nome: "Root",
+        usuario: "root@root.com",
+        senha: "rootroot",
+        foto: "-",
+      })
+      .expect(400);
+  });
+
+  it("05 - Não Deve Autenticar o Usuário (Login) Se a Senha Estiver Errada", async () => {
+    const resposta = await request(app.getHttpServer())
+      .post("/usuarios/login")
+      .send({
+        usuario: "root@root.com",
+        senha: "rootroot2",
+      })
+      .expect(401);
 
     token = resposta.body.token;
+  });
 
-  })
+  it("06 - Deve Autenticar o Usuário (Login)", async () => {
+    const resposta = await request(app.getHttpServer())
+      .post("/usuarios/login")
+      .send({
+        usuario: "root@root.com",
+        senha: "rootroot",
+      })
+      .expect(200);
 
-  it("04 - Deve Listar todos os Usuários", async () => {
+    token = resposta.body.token;
+  });
+
+  it("07 - Não Deve Listar Todos os Usuários Sem Estar Logado", async () => {
     return request(app.getHttpServer())
-    .get('/usuarios/all')
-    .set('Authorization', `${token}`)
-    .send({})
-    .expect(200)
-  })
+      .get("/usuarios/all")
+      .send({})
+      .expect(401);
+  });
 
-  it("05 - Deve Atualizar um Usuário", async () => {
+  it("08 - Não Deve Atualizar um Usuário Sem Estar Logado", async () => {
     return request(app.getHttpServer())
-    .put('/usuarios/atualizar')
-    .set('Authorization', `${token}`)
-    .send({
-      id: usuarioId,
-      nome: 'Root Atualizado',
-      usuario: 'root@root.com',
-      senha: 'rootroot',
-      foto: '-',
-    })
-    .expect(200)
-    .then( resposta => {
-      expect("Root Atualizado").toEqual(resposta.body.nome);
-    })
+      .put("/usuarios/atualizacao")
+      .send({
+        id: usuarioId,
+        nome: "Root Atualizado",
+        usuario: "root@root.com",
+        senha: "rootroot",
+        foto: "-",
+      })
+      .expect(401)
+      .then(() => {
+        expect('undefined');
+      });
+  });
 
-  })
+  it("09 - Deve Listar Todos os Usuários", async () => {
+    return request(app.getHttpServer())
+      .get("/usuarios/all")
+      .set("Authorization", `${token}`)
+      .send({})
+      .expect(200);
+  });
 
-}); 
+  it("10 - Deve Atualizar um Usuário", async () => {
+    return request(app.getHttpServer())
+      .put("/usuarios/atualizacao")
+      .set("Authorization", `${token}`)
+      .send({
+        id: usuarioId,
+        nome: "Root Atualizado",
+        usuario: "root@root.com",
+        senha: "rootroot",
+        foto: "-",
+      })
+      .expect(200)
+      .then((resposta) => {
+        expect("Root Atualizado").toEqual(resposta.body.nome);
+      });
+  });
+});

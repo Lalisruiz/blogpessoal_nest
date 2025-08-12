@@ -1,0 +1,24 @@
+USE blogpessoal;
+
+CREATE TABLE tema (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE usuario (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  senha VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE postagem (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  titulo VARCHAR(100) NOT NULL,
+  conteudo TEXT NOT NULL,
+  data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  tema_id INT,
+  usuario_id INT,
+  FOREIGN KEY (tema_id) REFERENCES tema(id),
+  FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+);

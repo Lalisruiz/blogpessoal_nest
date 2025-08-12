@@ -4,10 +4,11 @@ import { Tema } from "./entities/tema.entity";
 import { TemaController } from "./controllers/tema.controller";
 import { TemaService } from "./services/tema.service";
 
+// Mapeamento dos módulos da classe Tema.
 @Module({
-    imports: [TypeOrmModule.forFeature([Tema])],
-    controllers: [TemaController],
-    providers: [TemaService],
-    exports: [TemaService]
+  imports: [TypeOrmModule.forFeature([Tema])],
+  providers: [TemaService],
+  controllers: [TemaController],
+  exports: [TemaService],
 })
-export class TemaModule {} 
+export class TemaModule {}

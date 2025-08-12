@@ -1,25 +1,37 @@
-// Importa os módulos necessários do NestJS
-import { ValidationPipe } from '@nestjs/common';  // Pipe para validação automática
-import { NestFactory } from '@nestjs/core';      // Classe para criar a aplicação NestJS
-import { AppModule } from './app.module';        // Módulo principal da aplicação
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { ValidationPipe } from "@nestjs/common";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
-// Função principal que inicializa a aplicação
 async function bootstrap() {
-    // Cria uma instância da aplicação NestJS
-    const app = await NestFactory.create(AppModule);
+  // Cria uma nova instância da aplicação NestJS através do factory
+  const app = await NestFactory.create(AppModule);
+  // DocumentBuilder é uma classe que ajuda a construir a documentação da API
+  const config = new DocumentBuilder()
+    .setTitle('Blog Pessoal')
+    .setDescription('Projeto Blog Pessoal')
+    .setContact('Larissa Ruiz', 'github.com/lalisruiz', 'rrs.larissa@gmail.com') // O método setContact espera 3 argumentos: nome, url e email
+    .setVersion('1.0')
+    .addBearerAuth() 
+    .build();
+    const document = SwaggerModule.createDocument(app, config);
+    // Swagger é uma ferramenta que gera automaticamente uma documentação interativa para a API REST.
+    // No NestJS, usando o pacote @nestjs/swagger, você pode acessar a documentação em /swagger.
+    // Isso facilita visualizar, testar e entender todos os endpoints da aplicação.
+    SwaggerModule.setup('/swagger', app, document);
 
-    // Configura o fuso horário para -03:00 (Horário de Brasília)
-    // process.env.TZ já foi configurado no topo do arquivo
+  // Define o timezone brasileiro (GMT-3) para toda a aplicação
+  process.env.TZ = process.env.TZ || "-03:00";
 
-    // Habilita validação automática global para todos os endpoints
-    // Isso valida automaticamente os DTOs (Data Transfer Objects)
-    app.useGlobalPipes(new ValidationPipe());
-    
-    // Habilita CORS (Cross-Origin Resource Sharing)
-    // Permite que a API seja acessada de diferentes domínios/origens
-    app.enableCors();
-    await app.listen(process.env.PORT ?? 4000);
+  // Aplica validação automática em todos os endpoints da aplicação
+  app.useGlobalPipes(new ValidationPipe());
+
+  // Permite requisições de qualquer origem (Cross-Origin Resource Sharing)
+  app.enableCors();
+
+  // Inicia o servidor na porta definida no .env ou 4000
+  await app.listen(process.env.PORT || 4000);
 }
 
-// Chama a função bootstrap para iniciar a aplicação
+// Executa a função de inicialização da aplicação
 bootstrap();

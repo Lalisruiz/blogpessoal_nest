@@ -5,15 +5,15 @@ import { jwtConstants } from "../constants/constants";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor(){ 
-        super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            ignoreExpiration: false, // Não ignora a expiração do token
-            secretOrKey: jwtConstants.secret, // A chave secreta usada para assinar os tokens JWT
-        });
-    }
+  constructor() {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: jwtConstants.secret,
+    });
+  }
 
-    async validate(payload: any){
-        return payload;
-    }
+  async validate(payload: any) {
+    return payload;
+  }
 }
