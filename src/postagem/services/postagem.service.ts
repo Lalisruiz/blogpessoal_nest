@@ -1,10 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { Postagem } from "../entities/postagem.entity";
-import { DeleteResult, ILike, Repository } from "typeorm";
+import { ILike, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TemaService } from "../../tema/services/tema.service";
-import { DevDateService } from "../../date/services/dev.services";
-import { ProdDateService } from "../../date/services/prod.services";
+
 
 // Contém todos os métodos de postagem.
 // Service acessa a repository que acessa o banco. (Conversa com o banco de dados através da Repository)
@@ -12,19 +11,12 @@ import { ProdDateService } from "../../date/services/prod.services";
 
 @Injectable()
 export class PostagemService {
-  private dateService: DevDateService | ProdDateService;
 
   constructor(
     @InjectRepository(Postagem)
     private postagemRepository: Repository<Postagem>,
     private temaService: TemaService,
-  ) {
-    if (process.env.NODE_ENV === "production") {
-      this.dateService = new ProdDateService();
-    } else {
-      this.dateService = new DevDateService();
-    }
-  }
+  ) {}
 
   // -- Método de encontrar tudo: ---
   // Não necessita de tratamento de erro pois lista é sempre encontrada, mesmo que vazia.
@@ -103,7 +95,6 @@ export class PostagemService {
     try {
       // Verifica se o id do tema existe antes da criação;
       await this.temaService.findById(postagem.tema.id);
-      postagem.data = this.dateService.getCurrentDate();
       // INSERT INTO tb_postagens (titulo, texto, data) VALUES ("Título", "Texto", CURRENT_TIMESTAMP());
       const createdPost = await this.postagemRepository.save(postagem);
       return {

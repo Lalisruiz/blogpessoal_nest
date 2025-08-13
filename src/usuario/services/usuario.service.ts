@@ -15,7 +15,6 @@ export class UsuarioService {
     private bcrypt: Bcrypt,
   ) {}
 
-  // undefined
   async findByUsuario(usuario: string): Promise<Usuario | null> {
     return await this.usuarioRepository.findOne({
       where: {

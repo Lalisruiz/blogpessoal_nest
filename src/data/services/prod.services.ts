@@ -18,9 +18,3 @@ export class ProdService implements TypeOrmOptionsFactory {
     };
   }
 }
-
-export class ProdDateService {
-  getCurrentDate(): Date {
-    return new Date();
-  }
-}
