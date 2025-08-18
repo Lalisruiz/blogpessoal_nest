@@ -62,7 +62,7 @@ npm run test:e2e
 
 🌐 Deploy
 O projeto está hospedado no Render e possui documentação interativa via Swagger:
-🔗 Acessar Swagger UI (LINK)
+🔗 Acessar Swagger UI ([[LINK](https://blogpessoal-lo67.onrender.com/swagger#/)])
 
 ⚠️ Atenção: Para executar localmente, confirme que o app.module.ts está configurado para usar o DevService em vez do ProdService:
 ```ts
